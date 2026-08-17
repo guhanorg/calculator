@@ -1,0 +1,85 @@
+@page "/"
+@using CalculatorUI.Services
+@inject CalculatorClient Calculator
+
+<PageTitle>Calculator</PageTitle>
+
+<div class="calc-wrapper">
+    <div class="calc-card">
+        <h1 class="calc-title">Calculator</h1>
+
+        <div class="display">
+            @if (errorMessage is not null)
+            {
+                <span class="error">@errorMessage</span>
+            }
+            else
+            {
+                <span>@(displayValue ?? "0")</span>
+            }
+        </div>
+
+        <div class="input-row">
+            <input type="number" placeholder="A" @bind="inputA" class="number-input" />
+            <input type="number" placeholder="B" @bind="inputB" class="number-input" />
+        </div>
+
+        <div class="button-grid">
+            <button class="btn btn-op" @onclick='() => Compute("+")'>+</button>
+            <button class="btn btn-op" @onclick='() => Compute("-")'>−</button>
+            <button class="btn btn-op" @onclick='() => Compute("*")'>×</button>
+            <button class="btn btn-op" @onclick='() => Compute("÷")'>÷</button>
+        </div>
+
+        <button class="btn btn-clear" @onclick="Clear">Clear</button>
+    </div>
+</div>
+
+@code {
+    private double? inputA;
+    private double? inputB;
+    private string? displayValue;
+    private string? errorMessage;
+
+    private async Task Compute(string op)
+    {
+        errorMessage = null;
+        displayValue = null;
+
+        if (inputA is null || inputB is null)
+        {
+            errorMessage = "Please enter values for both A and B.";
+            return;
+        }
+
+        double a = inputA.Value, b = inputB.Value;
+
+        double? result = op switch
+        {
+            "+" => await Calculator.AddAsync(a, b),
+            "-" => await Calculator.SubtractAsync(a, b),
+            "*" => await Calculator.MultiplyAsync(a, b),
+            "÷" => await HandleDivide(a, b),
+            _ => null
+        };
+
+        if (errorMessage is null)
+            displayValue = result?.ToString("G10");
+    }
+
+    private async Task<double?> HandleDivide(double a, double b)
+    {
+        var (result, error) = await Calculator.DivideAsync(a, b);
+        if (error is not null)
+            errorMessage = error;
+        return result;
+    }
+
+    private void Clear()
+    {
+        inputA = null;
+        inputB = null;
+        displayValue = null;
+        errorMessage = null;
+    }
+}

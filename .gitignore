@@ -1,0 +1,19 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+_ReSharper*/
+*.DotSettings.user
+
+## Publish
+publish/
+out/
+
+## Docker
+.dockerignore
+
+## OS
+.DS_Store
+Thumbs.db

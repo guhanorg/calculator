@@ -1,0 +1,19 @@
+services:
+  calculator-api:
+    build:
+      context: .
+      dockerfile: src/CalculatorApi/Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - AllowedOrigins=http://localhost:3000
+
+  calculator-ui:
+    build:
+      context: .
+      dockerfile: src/CalculatorUI/Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - calculator-api
